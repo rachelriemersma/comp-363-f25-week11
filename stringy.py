@@ -127,14 +127,14 @@ def generate_random_string(
             random_string = "".join(distorted_chars)
     return random_string
 
-def can_segment_dp(A: str) -> bool:
+def can_segment_dp(A: str) -> list[str]:
     """Determine (using dynamic programming) if A can be segmented into
     valid tokens from little_dictionary."""
     # Shortuct
     n: int = len(A)
     # Initialize the dp array
     dp: list[bool] = [False] * (n + 1)
-    # ?
+    # starting point of last word
     parent: list[int] = [-1] * (n+1)
     # Base case
     dp[0] = True
@@ -146,21 +146,26 @@ def can_segment_dp(A: str) -> bool:
         while j < i and not dp[i]:
             if dp[j] and is_word(little_dictionary, A[j:i]):
                 dp[i] = True
+                # remember where word started 
                 parent[i] = j
             j += 1
-
+    # check if can be segmented 
     if not dp[n]:
         return None
     
     segmentation : list[str] = []
+    # start at end 
     current_pos = n 
 
     while current_pos > 0:
+        # find out where the word starts
         start_pos = parent[current_pos]
+        # get word and add to the list 
         word = A[start_pos:current_pos]
         segmentation.append(word)
+        # move to start of the word 
         current_pos = start_pos
-
+    # flip from backwards 
     segmentation.reverse()
     return segmentation    
 
@@ -170,10 +175,8 @@ current_trial = 0
 distortion_probability = 0.01
 while current_trial < number_of_trials:
     current_trial += 1
-    A = generate_random_string(
-        little_dictionary, number_of_trials, distortion_probability)
+    A = generate_random_string(little_dictionary, number_of_trials, distortion_probability)
     result = can_segment_dp(A)
-    # report
     if result:
         print(f"    True: {result}")
     else:
